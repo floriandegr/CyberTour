@@ -8,6 +8,12 @@
 </head>
 <body>
 
-
+<script>
+    window.addEventListener("storage", function(event) {
+        if (localStorage.getItem("backupChoice")=== "goToHR") {
+            window.location.href = "Defaultscreen.html";
+        }
+    });
+</script>
 </body>
 </html>
