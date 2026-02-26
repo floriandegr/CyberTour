@@ -21,21 +21,21 @@
             <div class="grid-layout">
                 <div class="input-field">
                     <label>Naam & Voornaam</label>
-                    <input type="text" placeholder="bv. Marc Peeters">
+                    <input id="naam" type="text" placeholder="bv. Marc Peeters">
                 </div>
                 <div class="input-field">
                     <label>Bedrijfsnaam</label>
-                    <input type="text" placeholder="Bedrijf X">
+                    <input id="bedrijf" type="text" placeholder="Bedrijf X">
                 </div>
                 <div class="input-field">
                     <label>Email adres</label>
-                    <input type="email" placeholder="marc@bedrijf.be">
+                    <input id="email" type="email" placeholder="marc@bedrijf.be">
                 </div>
                 <div class="input-field">
                     <label>Locatie & Regio</label>
                     <div class="nested-row">
-                        <input type="text" placeholder="Plaats">
-                        <input type="text" placeholder="Postcode">
+                        <input id="plaats" type="text" placeholder="Plaats">
+                        <input id="postcode" type="text" placeholder="Postcode">
                     </div>
                 </div>
             </div>
@@ -74,15 +74,16 @@
             <h2 class="section-title">Omvang</h2>
             <div class="input-field limit-w">
                 <label>Aantal werknemers</label>
-                <input type="number" placeholder="0">
+                <input id="werknemers"  type="number" placeholder="0">
             </div>
         </section>
 
         <footer class="form-footer">
-            <button type="submit" class="cta-button">Start de experience</button>
+            <button id="submit" type="button" class="cta-button">Start de experience</button>
         </footer>
     </form>
 </div>
+<script src="Scripts\formScript.js"></script>
 
 </body>
 </html>
