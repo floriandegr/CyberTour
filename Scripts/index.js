@@ -1,7 +1,16 @@
 // Function to display the chosen option
 function displayChoice(option) {
     const result = document.getElementById("result");
+    const indicator = document.getElementById("storageIndicator");
     if (!result) return;
+
+    if (option) {
+        // Show indicator if choice exists
+        if (indicator) indicator.style.display = "block";
+    } else {
+        // Hide indicator if no choice
+        if (indicator) indicator.style.display = "none";
+    }
 
     switch(option) {
         case "usb":
@@ -60,12 +69,22 @@ function displayChoice(option) {
 window.onload = function() {
     const savedChoice = localStorage.getItem("backupChoice");
     displayChoice(savedChoice);
+
+    // Redirect if savedChoice is "goNext"
+    if (savedChoice === "goNext") {
+        window.location.href = "Defaultscreen.html";
+    }
 };
 
 // ---------- LISTEN FOR LOCALSTORAGE CHANGES ----------
 window.addEventListener("storage", function(event) {
     if (event.key === "backupChoice") {
         displayChoice(event.newValue);
+
+        // Redirect if new value is "goNext"
+        if (event.newValue === "goNext") {
+            window.location.href = "Defaultscreen.html";
+        }
     }
 });
 
@@ -73,6 +92,11 @@ window.addEventListener("storage", function(event) {
 setInterval(() => {
     const savedChoice = localStorage.getItem("backupChoice");
     displayChoice(savedChoice);
+
+    // Redirect if savedChoice is "goNext"
+    if (savedChoice === "goNext") {
+        window.location.href = "Defaultscreen.html";
+    }
 }, 1000);
 //------------VERWIJDER KNOP---------------
 document.getElementById("clearStorage").onclick = function() {
@@ -91,3 +115,45 @@ document.getElementById("clearStorage").onclick = function() {
     // Optional: alert the user
     alert("✅ Alle opgeslagen keuzes zijn gewist!");
 };
+
+//-----------------------------------------
+function updateStorageIndicator() {
+    const savedChoice = localStorage.getItem("backupChoice");
+    const indicator = document.getElementById("storageIndicator");
+
+    if (savedChoice && indicator) {
+        indicator.style.display = "block";
+    } else if (indicator) {
+        indicator.style.display = "none";
+    }
+}
+
+// Run on page load
+window.onload = updateStorageIndicator;
+
+// Listen for localStorage changes in other tabs/windows
+window.addEventListener("storage", (event) => {
+    if (event.key === "backupChoice") {
+        updateStorageIndicator();
+    }
+});
+
+// EXAMPLE: Call this function whenever you update or clear localStorage in THIS tab
+function setChoice(option) {
+    if (option) {
+        localStorage.setItem("backupChoice", option);
+    } else {
+        localStorage.removeItem("backupChoice");
+    }
+    updateStorageIndicator();  // <-- update UI immediately
+}
+
+// EXAMPLE: clear button handler calls setChoice(null)
+document.getElementById("clearStorage").onclick = function() {
+    setChoice(null);
+    alert("✅ Alle opgeslagen keuzes zijn gewist!");
+};
+
+document.getElementById("goNext").onclick = function() {
+    localStorage.setItem("backupChoice","goNext");
+}

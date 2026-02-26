@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        #container {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 250px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #timer {
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #nextBtn {
+            display: none;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h2>Choose a Password</h2>
+    <input type="password" id="password" placeholder="Enter password">
+    <div id="timer">60s</div>
+    <button id="submitBtn">Check Password</button>
+    <div id="result"></div>
+    <button id="nextBtn">Next Challenge</button>
+</div>
+
+<script>
+    let timeLeft = 60;
+    const timerEl = document.getElementById('timer');
+    const passwordEl = document.getElementById('password');
+    const resultEl = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft + 's';
+        if(timeLeft <= 0) {
+            clearInterval(timer);
+            checkPassword();
+        }
+    }, 1000);
+
+    function checkPassword() {
+        const password = passwordEl.value;
+        let strength = 0;
+
+        if(password.length >= 8) strength++;
+        if(/[a-z]/.test(password)) strength++;
+        if(/[A-Z]/.test(password)) strength++;
+        if(/[0-9]/.test(password)) strength++;
+        if(/[^A-Za-z0-9]/.test(password)) strength++;
+
+        let message = '';
+        switch(strength) {
+            case 0:
+            case 1:
+            case 2:
+                message = 'Weak password';
+                resultEl.style.color = 'red';
+                break;
+            case 3:
+            case 4:
+                message = 'Medium password';
+                resultEl.style.color = 'orange';
+                break;
+            case 5:
+                message = 'Strong password';
+                resultEl.style.color = 'green';
+                break;
+        }
+
+        resultEl.textContent = message;
+        passwordEl.disabled = true;
+        submitBtn.disabled = true;
+        nextBtn.style.display = 'inline-block'; // show the next button
+    }
+
+    submitBtn.addEventListener('click', () => {
+        clearInterval(timer);
+        checkPassword();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        // Redirect to index page 4
+        window.location.href = 'index4.html';
+    });
+</script>
+
+</body>
+</html>
