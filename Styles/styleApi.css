@@ -120,3 +120,15 @@ input:focus{outline:none;}
 .danger{color:var(--danger);}
 .warning{color:#FB8C00;}
 .safe{color:#43A047;}
+
+.cta-button {
+    background-color: var(--lime);
+    color: var(--white);
+    padding: 24px 80px;
+    border-radius: 100px;
+    border: none;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
