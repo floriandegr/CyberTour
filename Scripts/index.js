@@ -149,5 +149,11 @@ document.getElementById("clearStorage").onclick = function() {
 };
 
 document.getElementById("goNext").onclick = function() {
+
     localStorage.setItem("backupChoice","goNext");
 }
+let schade = parseInt(localStorage.getItem("schade"));
+const omzet = parseInt(localStorage.getItem("omzet"));
+const extraSchade = omzet*0.02;
+const nieuweSchade = schade + extraSchade+"";
+localStorage.setItem("schade",nieuweSchade)

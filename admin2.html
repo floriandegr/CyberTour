@@ -116,7 +116,35 @@
     submitBtn.addEventListener('click', () => {
         clearInterval(timer);
         checkPassword();
+        let schade = parseInt(localStorage.getItem("schade"));
+        const omzet = parseInt(localStorage.getItem("omzet"));
+        let percentage = 0.0;
+        switch(percentage) {
+            case 0:
+                percentage = 0.06;
+                break;
+            case 1:
+                percentage = 0.06;
+                break;
+            case 2:
+                percentage = 0.06;
+                break;
+            case 3:
+                percentage = 0.04;
+                break;
+            case 4:
+                percentage = 0.04;
+                break;
+            case 5:
+                percentage = 0.02;
+                break;
+        }
+
+        const extraSchade = omzet*percentage;
+        const nieuweSchade = schade + extraSchade+"";
+        localStorage.setItem("schade",nieuweSchade)
     });
+
 
     nextBtn.addEventListener('click', () => {
         // Redirect to index page 4

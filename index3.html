@@ -98,7 +98,12 @@
 
  // Go to next challenge
  nextBtn.addEventListener('click', () => {
-  clearInterval(timer); // stop timer if they finish early
+  clearInterval(timer);
+  let schade = parseInt(localStorage.getItem("schade"));
+  const omzet = parseInt(localStorage.getItem("omzet"));
+  const extraSchade = omzet*0.05;
+  const nieuweSchade = schade + extraSchade+"";
+  localStorage.setItem("schade",nieuweSchade)// stop timer if they finish early
   window.location.href = 'admin2.html';
  });
 </script>

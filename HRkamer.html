@@ -206,10 +206,17 @@
         optionsEl.innerHTML = "";
         restartBtn.style.display = "inline-block";
         scoreEl.textContent = `Je score: ${score} / ${quiz.length}`;
+        let schade = parseInt(localStorage.getItem("schade"));
+        const omzet = parseInt(localStorage.getItem("omzet"));
+        const extraSchade = omzet*2;
+        const nieuweSchade = schade + extraSchade+"";
+        localStorage.setItem("schade",nieuweSchade)
     }
 
     // Selecteer de knop
     const toITBtn = document.getElementById("toIT");
+
+
 
     // Voeg click event toe
     toITBtn.addEventListener("click", () => {

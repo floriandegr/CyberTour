@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     let savedEmail = localStorage.getItem("email");
     const button = document.getElementById("button");
     button.addEventListener("click", runMock);
@@ -29,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
             createCard("Totale risicoscore", "89 / 100", "danger", "div");
             createCard("Ga naar de volgende stap", "----->", "", "button");
 
+
+
             // Attach event to the newly created button
             const button2 = document.querySelector(".cta-button");
             if (button2) {
@@ -56,4 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
             results.appendChild(card);
         }
     }
+    let schade = parseInt(localStorage.getItem("schade"));
+    const omzet = parseInt(localStorage.getItem("omzet"));
+    const extraSchade = omzet*0.05;
+    const nieuweSchade = schade + extraSchade+"";
+    localStorage.setItem("schade",nieuweSchade)
+
 });
