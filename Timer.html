@@ -31,16 +31,16 @@
 <script>
  const timerBox = document.getElementById("timerBox");
  let countdown = null;
- let timeLeft = 60; // seconds
+ // seconds
 
  // Function to start countdown
  function startTimer() {
   if(countdown) return; // already running
-  timeLeft = 60; // reset timer
+  timeLeft = 0; // reset timer
   updateTimerDisplay();
 
   countdown = setInterval(() => {
-   timeLeft--;
+   timeLeft++;
    updateTimerDisplay();
    if(timeLeft <= 0) {
     clearInterval(countdown);
