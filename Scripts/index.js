@@ -41,7 +41,7 @@ function displayChoice(option) {
 
         case "nothing":
             result.innerHTML = `
-                <h1>😬 Niets gedaan</h1>
+                <h1> Niets gedaan</h1>
                 <p>💰 Schade blijft stijgen...</p>
             `;
             localStorage.setItem("backupChoice","nothing")
@@ -74,3 +74,20 @@ setInterval(() => {
     const savedChoice = localStorage.getItem("backupChoice");
     displayChoice(savedChoice);
 }, 1000);
+//------------VERWIJDER KNOP---------------
+document.getElementById("clearStorage").onclick = function() {
+    // Clear all localStorage
+    localStorage.clear();
+
+    // Optional: reset display content if needed
+    const result = document.getElementById("result");
+    if(result) {
+        result.innerHTML = `
+            <h1>Storage cleared</h1>
+            <p>Alle keuzes zijn verwijderd. Maak een nieuwe keuze.</p>
+        `;
+    }
+
+    // Optional: alert the user
+    alert("✅ Alle opgeslagen keuzes zijn gewist!");
+};
