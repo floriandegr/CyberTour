@@ -8,12 +8,13 @@
 body {
     height: 100vh;
     display: flex;
+    background: #fefefe;
 }
 
 /* LEFT SIDE */
 .sidebar {
     width: 30%;
-    background: #1e1e2f;
+    background: #19683e;
     color: white;
     padding: 40px 20px;
     display: flex;
@@ -29,7 +30,7 @@ body {
 .sidebar button {
     padding: 15px;
     border: none;
-    background: #4c6ef5;
+    background: #b9d53d;
     color: white;
     font-size: 16px;
     cursor: pointer;
@@ -84,3 +85,5 @@ body {
         width: 100%;
     }
 }
+
+
