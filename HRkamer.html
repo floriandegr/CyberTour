@@ -63,17 +63,20 @@
     <div id="options"></div>
     <div id="score"></div>
     <div id="nextRoom">
-    Beste [naam] (Pas ik later wel aan)
-
-        Uw IT'er zit in Ibiza en is niet bereikbaar, u zal het zelf moeten oplossen!
-
-        Ga naar de volgende kamer en stop deze waanzin!
-
+        <p id="nextRoomText"></p>
         <button id="toIT">naar de volgende Challenge</button>
     </div>
 </div>
 
 <script>
+    let naam = localStorage.getItem('naam');
+    let naamding = document.getElementById("nextRoomText")
+
+    naamding.innerText = "Beste "+naam+"\n" +
+        "\n" +
+        "        Uw IT'er zit in Ibiza en is niet bereikbaar, u zal het zelf moeten oplossen!\n" +
+        "\n" +
+        "        Ga naar de volgende kamer en stop deze waanzin!"
 
     window.onload = () => {
         const restartBtn = document.getElementById("nextRoom");

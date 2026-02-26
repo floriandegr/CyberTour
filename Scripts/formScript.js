@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         localStorage.setItem("type", bedrijfType);
+        localStorage.setItem("schade", bedrag*0.08);
 
 
 
