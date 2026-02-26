@@ -1,13 +1,121 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="styles/style.css">
-    <script type="text/javascript" charset="utf-8" src="scripts/index.js"></script>
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Layout Website</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+        }
+
+        /* LEFT SIDE */
+        .sidebar {
+            width: 30%;
+            background: #1e1e2f;
+            color: white;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar button {
+            padding: 15px;
+            border: none;
+            background: #4c6ef5;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .sidebar button:hover {
+            background: #364fc7;
+        }
+
+        /* RIGHT SIDE */
+        .content {
+            width: 70%;
+            padding: 50px;
+            background: #f4f4f4;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .content-section h1 {
+            margin-bottom: 20px;
+            font-size: 32px;
+            color: #333;
+        }
+
+        .content-section p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+
+            .content {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
+<!-- LEFT PANEL -->
+<div class="sidebar">
+    <h2>Menu</h2>
+    <button id="btn1">Layout 1</button>
+    <button id="btn2">Layout 2</button>
+    <button id="btn3">Layout 3</button>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="content">
+    <div class="content-section">
+        <h1>Welcome</h1>
+        <p>
+            This is the content area. When you add your JavaScript later,
+            clicking buttons on the left can change this layout,
+            text, colors, or completely replace this section.
+        </p>
+    </div>
+</div>
 
 </body>
 </html>
