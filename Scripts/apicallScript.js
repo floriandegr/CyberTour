@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const button2 = document.querySelector(".cta-button");
             if (button2) {
                 button2.addEventListener("click", () => {
-                    window.location.href = "admin.html";
+                    window.location.href = "HRkamer.html";
                 });
             }
         }, 1200);
