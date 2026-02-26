@@ -71,9 +71,7 @@ window.onload = function() {
     displayChoice(savedChoice);
 
     // Redirect if savedChoice is "goNext"
-    if (savedChoice === "goNext") {
-        window.location.href = "Defaultscreen.html";
-    }
+
 };
 
 // ---------- LISTEN FOR LOCALSTORAGE CHANGES ----------
@@ -82,9 +80,7 @@ window.addEventListener("storage", function(event) {
         displayChoice(event.newValue);
 
         // Redirect if new value is "goNext"
-        if (event.newValue === "goNext") {
-            window.location.href = "Defaultscreen.html";
-        }
+
     }
 });
 
@@ -94,9 +90,7 @@ setInterval(() => {
     displayChoice(savedChoice);
 
     // Redirect if savedChoice is "goNext"
-    if (savedChoice === "goNext") {
-        window.location.href = "Defaultscreen.html";
-    }
+
 }, 1000);
 //------------VERWIJDER KNOP---------------
 document.getElementById("clearStorage").onclick = function() {
