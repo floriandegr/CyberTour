@@ -21,21 +21,21 @@
             <div class="grid-layout">
                 <div class="input-field">
                     <label>Naam & Voornaam</label>
-                    <input id="naam" type="text" placeholder="bv. Marc Peeters">
+                    <input id="naam" type="text" value="Marc Peeters">
                 </div>
                 <div class="input-field">
                     <label>Bedrijfsnaam</label>
-                    <input id="bedrijf" type="text" placeholder="Bedrijf X">
+                    <input id="bedrijf" type="text" value="Bedrijf X">
                 </div>
                 <div class="input-field">
                     <label>Email adres</label>
-                    <input id="email" type="email" placeholder="marc@bedrijf.be">
+                    <input id="email" type="email" value="marc@bedrijf.be">
                 </div>
                 <div class="input-field">
                     <label>Locatie & Regio</label>
                     <div class="nested-row">
-                        <input id="plaats" type="text" placeholder="Plaats">
-                        <input id="postcode" type="text" placeholder="Postcode">
+                        <input id="plaats" type="text" value="Kortrijk">
+                        <input id="postcode" type="text" value="8500">
                     </div>
                 </div>
             </div>
@@ -44,8 +44,8 @@
         <section class="form-section">
             <h2 class="section-title">Jaaromzet</h2>
             <div class="tile-row">
-                <input type="radio" name="omzet" id="o1"><label for="o1" class="mega-tile"><span class="price">< €250k</span></label>
-                <input type="radio" name="omzet" id="o2"><label for="o2" class="mega-tile"><span class="price">€250k - €500k</span></label>
+                <input type="radio" name="omzet" id="o1"><label for="o1" class="mega-tile"><span class="price"> €250k</span></label>
+                <input type="radio" name="omzet" id="o2" checked="checked"><label for="o2" class="mega-tile"><span class="price">€250k - €500k</span></label>
                 <input type="radio" name="omzet" id="o3"><label for="o3" class="mega-tile"><span class="price">€500k - €1M</span></label>
                 <input type="radio" name="omzet" id="o4"><label for="o4" class="mega-tile"><span class="price">€1M - €2.5M</span></label>
                 <input type="radio" name="omzet" id="o5"><label for="o5" class="mega-tile"><span class="price">€2.5M - €10M</span></label>
@@ -60,7 +60,7 @@
                 <input type="radio" name="type" id="t2"><label for="t2" class="mega-tile">Zorg</label>
                 <input type="radio" name="type" id="t3"><label for="t3" class="mega-tile">Finance</label>
                 <input type="radio" name="type" id="t4"><label for="t4" class="mega-tile">Overheid</label>
-                <input type="radio" name="type" id="t5"><label for="t5" class="mega-tile">Industrie (OT)</label>
+                <input type="radio" name="type" id="t5" checked="checked"><label for="t5" class="mega-tile">Industrie (OT)</label>
                 <input type="radio" name="type" id="t6"><label for="t6" class="mega-tile">Retail</label>
                 <input type="radio" name="type" id="t7"><label for="t7" class="mega-tile">Onderwijs</label>
                 <input type="radio" name="type" id="t8"><label for="t8" class="mega-tile">IT / SaaS</label>
@@ -74,7 +74,7 @@
             <h2 class="section-title">Omvang</h2>
             <div class="input-field limit-w">
                 <label>Aantal werknemers</label>
-                <input id="werknemers"  type="number" placeholder="0">
+                <input id="werknemers"  type="number" value="25">
             </div>
         </section>
 
@@ -83,6 +83,7 @@
         </footer>
     </form>
 </div>
+
 <script src="Scripts\formScript.js"></script>
 <script>
     window.onload = function () {
