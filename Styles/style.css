@@ -1,0 +1,184 @@
+:root {
+    --primary-blue: #439ed2;
+    --forest-green: #19683e;
+    --lime-brand: #b9d53d;
+    --white: #fefdfe;
+    --light-gray: #F8FAFB;
+}
+
+body {
+    background-color: var(--white);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--forest-green);
+    margin: 0;
+    padding: 100px 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Header styling */
+.form-header {
+    margin-bottom: 80px;
+}
+
+.color-accent-bar {
+    width: 80px;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--lime-brand));
+    border-radius: 3px;
+    margin-bottom: 24px;
+}
+
+h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin: 0;
+    color: var(--forest-green);
+}
+
+.form-header p {
+    font-size: 20px;
+    color: var(--primary-blue);
+    margin-top: 12px;
+}
+
+/* Secties & Spacing */
+.form-section {
+    margin-bottom: 100px; /* Veel spacing tussen secties */
+}
+
+.section-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary-blue);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.section-title::after {
+    content: "";
+    height: 1px;
+    flex-grow: 1;
+    background: var(--primary-blue);
+}
+
+/* Inputs */
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.input-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="number"], 
+select {
+    width: 100%;
+    padding: 18px 0;
+    border: none;
+    border-bottom: 2px solid var(--primary-blue);
+    background: transparent;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.nested-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Grote Tegels */
+.tile-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.tile-row input[type="radio"] {
+    display: none;
+}
+
+.mega-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 140px;
+    background-color: var(--light-gray);
+    border: 2px solid transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 22px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    text-align: center;
+    padding: 20px;
+}
+
+.mega-tile:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+    box-shadow: 0 20px 40px rgba(30, 136, 229, 0.1);
+}
+
+/* Actieve kleur uit afbeelding */
+.tile-row input[type="radio"]:checked + .mega-tile {
+    background-color: var(--lime-brand);
+    border-color: var(--lime-brand);
+    color: var(--white);
+    box-shadow: 0 15px 30px rgba(192, 227, 93, 0.4);
+
+}
+
+/* Verzendknop */
+.form-footer {
+    padding-top: 40px;
+    border-top: 2px solid var(--light-gray);
+}
+
+.cta-button {
+    background-color: var(--forest-green);
+    color: var(--white);
+    padding: 24px 80px;
+    border-radius: 100px;
+    border: none;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: var(--primary-blue);
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(30, 136, 229, 0.3);
+}
+
+.limit-w { max-width: 400px; }
+
+@media (max-width: 768px) {
+    .grid-layout { grid-template-columns: 1fr; }
+    h1 { font-size: 38px; }
+    .mega-tile { height: 100px; }
+}
