@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Experience - ConXion</title>
+    <style>
+        /* --- GLOBAL STYLING (ConXion Theme) --- */
+        :root {
+            --primary-blue: #439ed2;
+            --forest-green: #19683e;
+            --lime-brand: #b9d53d;
+            --white: #fefdfe;
+            --light-gray: #F8FAFB;
+            --alert-red: #e74c3c;
+            --dark-hud: white; /* Zachter donker voor HUD */
+
+        } 
+
+        body {
+            background-color: var(--white);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--forest-green);
+            margin: 0;
+            padding-top: 100px; 
+            padding-bottom: 100px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* --- HUD (AANGEPAST MET HOVER) --- */
+         #hud-bar {
+
+            position: fixed; top: 0; left: 0; width: 100%; height: 100px;
+
+            background: var(--dark-hud); /* Minder hard zwart */
+
+            border-bottom: 4px solid var(--alert-red);
+
+            display: none; z-index: 9000;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+
+            justify-content: center; align-items: center; gap: 60px;
+
+        }
+
+
+        .hud-item { text-align: center; color: white; font-family: 'Courier New', monospace; }
+
+        .hud-label { font-size: 15px; text-transform: uppercase; letter-spacing: 2px; color: #aaa; margin-bottom: 2px;}
+
+        .hud-value { font-size: 42px; font-weight: 800; letter-spacing: 1px; } 
+        
+         /* Geld blijft rood & dramatisch */
+
+        .val-money { color: var(--alert-red); text-shadow: 0 0 15px rgba(231, 76, 60, 0.4); transition: transform 0.2s; }
+
+        .val-timer { color: #19683e; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+
+        
+        .pulse-dmg { animation: pulseScale 0.3s ease-in-out; }
+        @keyframes pulseScale { 0% { transform: scale(1); } 50% { transform: scale(1.4); text-shadow: 0 0 25px red; } 100% { transform: scale(1); } }
+
+        /* --- BREAKDOWN TOOLTIP (FACTUUR) --- */
+        .cost-breakdown {
+            visibility: hidden;
+            width: 320px;
+            background-color: rgba(255, 255, 255, 0.98);
+            color: #333;
+            text-align: left;
+            border-radius: 8px;
+            padding: 15px;
+            position: absolute;
+            z-index: 1;
+            top: 110%; /* Onder de HUD */
+            left: 50%;
+            margin-left: -160px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #ddd;
+            border-top: 4px solid var(--alert-red);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        .cost-breakdown h4 { margin: 0 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; color: var(--forest-green); }
+        .cost-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+        .cost-row.total { border-top: 2px solid #ddd; margin-top: 10px; padding-top: 5px; font-weight: bold; font-size: 16px; color: var(--alert-red); }
+        
+        .hud-item:hover .cost-breakdown { visibility: visible; opacity: 1; }
+
+        /* --- CONTAINER --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+        /* --- STAPPEN --- */
+        .step-section { display: none; animation: fadeIn 0.6s ease-out; }
+        .step-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- TYPOGRAFIE --- */
+        .color-accent-bar { width: 80px; height: 6px; background: linear-gradient(90deg, var(--primary-blue), var(--lime-brand)); border-radius: 3px; margin-bottom: 24px; }
+        h1 { font-size: 48px; font-weight: 800; color: var(--forest-green); line-height: 1.1; margin: 0 0 20px 0; }
+        h2 { font-size: 24px; color: var(--primary-blue); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .hero-text { font-size: 18px; color: var(--primary-blue); margin-bottom: 40px; }
+
+        /* Inputs & Tegels */
+        .input-field { margin-bottom: 20px; }
+        .input-field label { display: block; font-weight: 700; margin-bottom: 8px; }
+        input[type="text"], input[type="email"], input[type="number"], select {
+            width: 100%; padding: 15px 0; border: none; border-bottom: 2px solid var(--primary-blue);
+            background: transparent; font-size: 18px; color: var(--forest-green);
+        }
+        input:focus { outline: none; border-bottom-color: var(--lime-brand); }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .tile-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .tile-row input { display: none; }
+        .mega-tile {
+            display: flex; align-items: center; justify-content: center; height: 100px;
+            background-color: var(--light-gray); border-radius: 12px; cursor: pointer;
+            font-weight: 700; padding: 10px; text-align: center; transition: 0.2s;
+        }
+        .mega-tile:hover { background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid var(--primary-blue); }
+        input:checked + .mega-tile { background-color: var(--lime-brand); color: white; box-shadow: 0 5px 15px rgba(185, 213, 61, 0.4); }
+
+        /* Buttons */
+        .cta-button {
+            background-color: var(--forest-green); color: var(--white); padding: 20px 60px;
+            border-radius: 100px; border: none; font-size: 18px; font-weight: 800;
+            cursor: pointer; transition: 0.2s; display: inline-block; margin-top: 20px;
+        }
+        .cta-button:hover { transform: scale(1.05); background-color: var(--primary-blue); }
+
+        /* Cards */
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 5px solid #ccc; }
+        .danger { color: var(--alert-red); font-weight: bold; font-size: 24px; } 
+        .warning { color: var(--warning-orange); font-weight: bold; font-size: 24px; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
+
+        /* Quiz */
+        .quiz-option { padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: var(--light-gray); transition: 0.2s; font-weight: 500;}
+        .quiz-option:hover { background: #e0f7fa; border-color: var(--primary-blue); }
+
+        /* Overlays */
+        .fs-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 24, 39, 0.98); z-index: 10000; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+        .fs-overlay h1 { color: var(--alert-red); font-size: 4rem; margin-bottom: 20px; text-transform: uppercase;}
+
+        /* Ibiza Photo Style */
+        .ibiza-photo {
+            max-width: 500px; width: 90%;
+            border: 10px solid white;
+            border-bottom: 40px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: rotate(-3deg);
+            margin-top: 20px;
+            border-radius: 2px;
+        }
+
+        /* ConXioN Insight (LIGHT THEME) */
+        #conxion-insight-card {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 800px;
+            background: rgba(255, 255, 255, 0.95); 
+            border-left: 6px solid var(--lime-brand);
+            border-radius: 12px;
+            padding: 20px 30px; 
+            z-index: 9500; display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            color: var(--forest-green); 
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            align-items: center; gap: 20px;
+        }
+        @keyframes slideUp { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        .insight-logo { font-weight: 900; font-size: 18px; color: var(--primary-blue); text-transform: uppercase; white-space: nowrap; }
+        .insight-text { font-size: 16px; line-height: 1.4; color: #333; }
+
+        /* Progress Bar (Aflopende lijn) */
+        .progress-container { width: 100%; background: #333; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 20px; }
+        .progress-bar { height: 100%; width: 0%; background: var(--lime-brand); transition: width 0.1s linear; }
+
+        /* --- PHISHING CLIENT (INTERACTIEF) --- */
+        .email-container { display: flex; height: 600px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .email-sidebar { width: 35%; border-right: 1px solid #eee; overflow-y: auto; background: #f8fafc; }
+        .email-content { width: 65%; padding: 30px; overflow-y: auto; background: white; position: relative; }
+        
+        .email-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; position: relative; }
+        .email-item:hover { background: #edf2f7; }
+        .email-item.active { background: #e0f2fe; border-left: 4px solid var(--primary-blue); }
+        .email-item.flagged::after { content: '🚩'; position: absolute; right: 10px; top: 15px; font-size: 14px; }
+        
+        .em-from { font-weight: bold; font-size: 14px; color: #333; }
+        .em-subj { font-size: 13px; color: var(--primary-blue); margin-top: 2px; }
+
+        /* Email Body Styles */
+        .msg-header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .msg-subject { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 10px; }
+        .msg-meta-row { display: flex; gap: 10px; font-size: 14px; color: #555; align-items: center; }
+        
+        /* HOVER REVEAL EFFECT */
+        .sender-pill { 
+            background: #eee; padding: 4px 10px; border-radius: 20px; cursor: help; position: relative; display: inline-block;
+        }
+        .sender-pill:hover .real-email { display: block; }
+        .real-email {
+            display: none; position: absolute; top: 100%; left: 0; background: #333; color: white; 
+            padding: 5px 10px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 10; margin-top: 5px;
+        }
+        
+        .attachment-box { 
+            border: 1px solid #ddd; padding: 10px; margin-top: 15px; border-radius: 5px; display: flex; align-items: center; gap: 10px; width: fit-content; background: #fafafa;
+        }
+        .fake-btn {
+            background: var(--primary-blue); color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 15px; font-weight: bold;
+        }
+        
+        .phish-controls { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-flag { background: #fff0f0; color: var(--alert-red); border: 1px solid var(--alert-red); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-flag:hover { background: var(--alert-red); color: white; }
+
+        /* Password Feedback (Strakke stijl) */
+        .pwd-feedback-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .pwd-card {
+            background: white; border: 2px solid #eee; border-radius: 12px; padding: 20px;
+            text-align: center; color: var(--forest-green); transition: 0.3s;
+        }
+        .pwd-card.good { border-color: var(--success-green); background: #f0fdf4; color: var(--forest-green); }
+        .pwd-card.bad { border-color: var(--alert-red); background: #fef2f2; color: var(--alert-red); }
+        .pwd-icon { font-size: 32px; display: block; margin-bottom: 10px; }
+
+        /* Communication Room */
+        .comm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .comm-tile {
+            background: white; padding: 30px; border-radius: 16px; text-align: center; border: 2px solid #eee; cursor: pointer; transition: 0.3s;
+        }
+        .comm-tile:hover { border-color: var(--primary-blue); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .comm-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        
+        .generated-msg-box {
+            background: white; border: 2px solid var(--primary-blue); border-radius: 12px; padding: 30px; margin-top: 30px; text-align: left; font-family: 'Courier New', monospace;
+            display: none;
+        }
+        .record-btn {
+            width: 60px; height: 60px; background: var(--alert-red); border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 2px var(--alert-red);
+            margin: 20px auto; cursor: pointer; display: block; transition: 0.2s;
+        }
+        .record-btn:active { transform: scale(0.95); background: darkred; }
+        .recording-pulse { animation: pulseRec 1s infinite; }
+        @keyframes pulseRec { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+
+        /* API Results Styling */
+        .hack-item {
+            background: #fff0f0; border-left: 4px solid var(--alert-red); padding: 12px; margin-bottom: 10px; text-align: left; font-family: monospace; font-size: 15px; color: #a00;
+        }
+
+        /* Dashboard specific */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .dash-card { background: var(--light-gray); padding: 30px; border-radius: 16px; position: relative; overflow: hidden; }
+        .dash-card h2 { font-size: 20px; color: var(--forest-green); border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .big-number { font-size: 48px; font-weight: 800; color: var(--primary-blue); margin: 15px 0; }
+        .subtext { font-size: 14px; color: #666; margin-top: 10px; }
+        /* --- STOCK MARKET STYLES --- */
+    .stock-container {
+        background: #0f172a; color: white; padding: 40px; border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-family: 'Courier New', monospace;
+        text-align: center; overflow: hidden; position: relative;
+    }
+    .stock-header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    .stock-symbol { font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+    .stock-live-badge { color: red; animation: blink 1s infinite; font-weight: bold; }
+    
+    .stock-price-row { display: flex; justify-content: center; gap: 30px; align-items: baseline; margin-bottom: 30px; }
+    #stock-price { font-size: 64px; font-weight: 700; }
+    .stock-change { font-size: 32px; color: #ef4444; }
+    
+    .chart-wrapper { 
+        height: 250px; width: 100%; border: 1px solid #334155; 
+        background: linear-gradient(180deg, rgba(239,68,68,0.1) 0%, rgba(15,23,42,0) 100%);
+        position: relative; overflow: hidden;
+    }
+    .crash-chart { width: 100%; height: 100%; transform: scaleX(1); animation: chartDraw 4s ease-out forwards; }
+    @keyframes chartDraw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+    
+    .stock-alert { color: #ef4444; font-size: 32px; margin-top: 20px; text-transform: uppercase; animation: shake 0.5s infinite; }
+    @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, 1px); } }
+
+    /* --- BREAKING NEWS STYLES --- */
+    .news-container {
+        background: black; padding: 0; border-radius: 0; overflow: hidden; 
+        border: 10px solid #cc0000; box-shadow: 0 0 50px rgba(200,0,0,0.5);
+        height: 500px; display: flex; flex-direction: column;
+    }
+    .news-header { background: #cc0000; color: white; padding: 10px 20px; font-weight: 900; font-size: 24px; letter-spacing: 1px; }
+    .news-content { position: relative; flex: 1; overflow: hidden; }
+    .news-bg-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+    
+    .news-overlay { 
+        position: absolute; bottom: 20px; left: 20px; right: 20px; 
+        background: rgba(255,255,255,0.95); color: black; padding: 20px; border-left: 10px solid #cc0000;
+    }
+    .news-live-tag { background: #cc0000; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 5px; }
+    .news-headline { font-size: 36px; font-weight: 900; line-height: 1.1; margin: 0 0 10px 0; text-transform: uppercase; }
+    
+    .news-ticker-wrap { background: #ffd700; color: black; padding: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; border-top: 2px solid black; }
+    .news-ticker-move { display: inline-block; animation: ticker 10s linear infinite; font-size: 18px; }
+    @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+   /* --- LEADERBOARD STYLES --- */
+        .leaderboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .lb-header-row {
+            display: flex;
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .lb-row {
+            display: flex;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+
+        /* Kolom breedtes */
+        .lb-rank { width: 50px; font-weight: 900; color: #ccc; }
+        .lb-name { flex: 1; font-weight: 600; color: var(--forest-green); }
+        .lb-cost { width: 150px; text-align: right; font-family: 'Courier New', monospace; font-weight: bold; color: var(--alert-red); }
+
+        /* De speler zelf (highlight) */
+        .lb-row.is-user {
+            background: var(--lime-brand);
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(185, 213, 61, 0.4);
+            border: none;
+            position: relative;
+            z-index: 10;
+            border-radius: 8px;
+            margin: 10px -5px; /* Iets breder laten lijken */
+        }
+        
+        .lb-row.is-user .lb-name, 
+        .lb-row.is-user .lb-cost, 
+        .lb-row.is-user .lb-rank {
+            color: white; /* Tekst wit maken in de highlight rij */
+        }
+
+        /* Top 3 styling */
+        .lb-row:nth-child(1) .lb-rank { color: #FFD700; text-shadow: 0 0 5px rgba(0,0,0,0.2); } /* Goud */
+        .lb-row:nth-child(2) .lb-rank { color: #C0C0C0; } /* Zilver */
+        .lb-row:nth-child(3) .lb-rank { color: #CD7F32; } /* Brons */
+        /* --- LEADERBOARD NIEUWE STIJL --- */
+        .leaderboard-wrapper {
+            max-width: 1000px; /* Hierdoor wordt het niet te breed */
+            margin: 0 auto 40px auto; /* Centreren */
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        .lb-header {
+            display: grid;
+            grid-template-columns: 50px 1fr 250px;
+            background: #f8fafc;
+            padding: 15px 25px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .lb-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 120px;
+            padding: 18px 25px;
+            border-bottom: 1px solid #f1f5f9;
+            align-items: center;
+            font-size: 15px;
+            color: #334155;
+            transition: background 0.2s;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row:hover { background: #f8fafc; }
+
+        .lb-rank { font-weight: 700; color: #cbd5e1; }
+        .lb-cost { text-align: right; font-family: 'Courier New', monospace; font-weight: 700; color: var(--alert-red); }
+        .lb-name { font-weight: 600; }
+        /* --- LEADERBOARD & FOOTER CSS --- */
+    .leaderboard-wrapper {
+        max-width: 600px;
+        margin: 0 auto 40px auto; /* Centreren van de tabel */
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    /* GRID AANPASSING: Laatste kolom breder (160px) */
+    .lb-header, .lb-row {
+        display: grid;
+        grid-template-columns: 50px 1fr 160px; 
+        align-items: center;
+        padding: 15px 25px;
+        gap: 10px;
+    }
+
+    .lb-header {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .lb-row {
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 15px;
+        color: #334155;
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+    
+    .lb-rank { font-weight: 700; color: #cbd5e1; }
+    .lb-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    /* AANPASSING: Tekst rechts uitlijnen en nooit afbreken */
+    .lb-cost { 
+        text-align: right; 
+        font-family: 'Courier New', monospace; 
+        font-weight: 700; 
+        color: var(--alert-red);
+        white-space: nowrap; 
+    }
+
+    /* De Speler Highlight */
+    .lb-row.is-user {
+        background: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 12px rgba(67, 158, 210, 0.4);
+        position: relative;
+        z-index: 10;
+        border: none;
+        margin-top: -1px; /* Overlap border fix */
+    }
+    .lb-row.is-user .lb-rank, 
+    .lb-row.is-user .lb-cost { color: white; }
+
+    /* Top 3 Kleuren */
+    .rank-1 .lb-rank { color: #FFD700; text-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+    .rank-2 .lb-rank { color: #C0C0C0; }
+    .rank-3 .lb-rank { color: #CD7F32; }
+
+    /* --- CONXION HELP FOOTER (Gecentreerd) --- */
+    .conxion-help-block {
+        max-width: 700px;
+        margin: 40px auto 0 auto; /* auto links/rechts centreert het blok */
+        background: var(--forest-green);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        text-align: center; /* Centreert de tekst binnenin */
+        box-shadow: 0 15px 40px rgba(25, 104, 62, 0.25);
+    }
+    
+    .conxion-help-block h3 { 
+        margin: 0 0 15px 0; 
+        color: var(--lime-brand); 
+        font-size: 24px; 
+        text-transform: uppercase; 
+        letter-spacing: 1px;
+    }
+    
+    .conxion-help-block p { 
+        margin-bottom: 30px; 
+        font-size: 16px; 
+        line-height: 1.6;
+        max-width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .help-actions { 
+        display: flex; 
+        justify-content: center; 
+        gap: 20px; 
+        flex-wrap: wrap; 
+    }
+    
+    .btn-outline { 
+        background: transparent; 
+        border: 2px solid white; 
+        color: white;
+        margin-top: 0;
+    }
+    .btn-outline:hover { 
+        background: white; 
+        color: var(--forest-green); 
+    }
+   </style>
+</head>
+<body>
+
+<div id="hud-bar">
+    <div class="hud-item" id="money-hud-item">
+        <div class="hud-label">Totale Schade</div>
+        <div id="hud-money" class="hud-value val-money">€0</div>
+        
+        <div class="cost-breakdown">
+            <h4>Huidige Kostenraming</h4>
+            <div class="cost-row"><span>Operationele Lonen</span><span id="cost-wages">€0</span></div>
+            <div class="cost-row"><span>Contractbreuken</span><span id="cost-contracts">€0</span></div>
+            <div class="cost-row"><span>Fysieke Schade</span><span id="cost-physical">€0</span></div>
+            <div class="cost-row"><span>Recovery Services</span><span id="cost-recovery">€0</span></div>
+            <div class="cost-row"><span>Imagoschade</span><span id="cost-imago">€0</span></div>
+            <div class="cost-row total"><span>TOTAAL</span><span id="cost-total">€0</span></div>
+        </div>
+    </div>
+    <div class="hud-item">
+        <div class="hud-label">Tijd</div>
+        <div id="hud-timer" class="hud-value val-timer">--:--</div>
+    </div>
+</div>
+
+<div id="conxion-insight-card">
+    <div class="insight-logo">ConXioN Insight</div>
+    <div class="insight-text" id="insight-text-content"></div>
+</div>
+
+<div id="overlay-interstitial" class="fs-overlay">
+    <h1 style="color:var(--lime-brand); font-size:3rem;" id="interstitial-title">Kamer Wissel...</h1>
+    <div class="progress-container" style="width: 400px;"><div id="interstitial-bar" class="progress-bar"></div></div>
+</div>
+
+<div id="overlay-it-down" class="fs-overlay">
+    <h1 style="font-size: 5rem;">⚠️ IT ONBEREIKBAAR</h1>
+    <p style="font-size:20px; margin-bottom:10px;">Uw IT-beheerder zit in Ibiza en neemt niet op.</p>
+    <img src="https://wereldreis.net/wp-content/uploads/2018/07/zonnige-vakantie-najaar.jpg" class="ibiza-photo" alt="Vakantie">
+    <p style="font-size:24px; font-weight:bold; color:var(--lime-brand); margin-top:20px;">U staat er alleen voor, courage!</p>
+    <button class="cta-button" style="background:white; color:black; margin-top:40px;" onclick="closeItOverlay()">Ik neem de leiding</button>
+</div>
+
+<div id="overlay-network-down" class="fs-overlay" style="background: rgba(185, 29, 29, 1);">
+    <h1 style="color:white; font-size: 6rem;">BACK-UP MISLUKT!</h1>
+    <p style="font-weight: bold; font-size:24px;">Ransomware verspreidt zich razendsnel door het netwerk.</p>
+    <p style="margin-top:20px;size:75px;font-weight:bold">LEG UW NETWERK PLAT. NU! <br>IEDERE SECONDE TELT!.</p>
+    <button class="cta-button" style="background:black; color:white; border:2px solid white; margin-top:40px;" onclick="startEmergencyTimer()">START NOODPROCEDURE</button>
+</div>
+
+
+<div class="container">
+
+    <section id="step-1" class="step-section active">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+     <h1>Lets start the experience @ConXioN</h1>
+            <p class="hero-text">Vul alle gegevens in zodat wij de scenario’s voor u kunnen personaliseren.</p>
+        </header>
+
+        <form id="startForm">
+            <div class="form-section">
+                <h2 class="section-title">Contactgegevens</h2>
+                <div class="grid-layout">
+                    <div class="input-field"><label>Naam & Voornaam</label><input id="naam" type="text" value="Michèle Sioen"></div>
+                    <div class="input-field"><label>Bedrijfsnaam</label><input id="bedrijf" type="text" value="SIOEN Industries"></div>
+                    <div class="input-field"><label>Email adres</label><input id="email" type="email" value="michèle@sioen.be"></div>
+                    <div class="input-field"><label>Locatie</label><input id="plaats" type="text" value="Aardooie"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Jaaromzet</h2>
+<div class="tile-row">
+    <input type="radio" name="omzet" id="o1" value="200000">
+    <label for="o1" class="mega-tile">€250k</label>
+
+    <input type="radio" name="omzet" id="o2" value="450000">
+    <label for="o2" class="mega-tile">€250k - €500k</label>
+
+    <input type="radio" name="omzet" id="o3" value="950000">
+    <label for="o3" class="mega-tile">€500k - €1M</label>
+
+    <input type="radio" name="omzet" id="o4" value="2000000">
+    <label for="o4" class="mega-tile">€1M - €2.5M</label>
+
+    <input type="radio" name="omzet" id="o5" value="9000000">
+    <label for="o5" class="mega-tile">€2.5M - €10M</label>
+
+    <input type="radio" name="omzet" id="o6" value="10000000" checked>
+    <label for="o6" class="mega-tile">€10M +</label>
+</div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Sector</h2>
+                <div class="tile-row">
+                    <input type="radio" name="type" id="t1" value="KMO"><label for="t1" class="mega-tile">KMO (algemeen)</label>
+                    <input type="radio" name="type" id="t2" value="Zorg"><label for="t2" class="mega-tile">Zorg</label>
+                    <input type="radio" name="type" id="t3" value="Finance"><label for="t3" class="mega-tile">Finance</label>
+                    <input type="radio" name="type" id="t5" value="Industrie" checked><label for="t5" class="mega-tile">Industrie</label>
+                    <input type="radio" name="type" id="t8" value="IT"><label for="t8" class="mega-tile">IT</label>
+                </div>
+            </div>
+
+            <footer style="margin-top: 40px; border-top: 1px solid #eee;">
+                <button type="button" id="btn-start" class="cta-button">Start de experience</button>
+            </footer>
+        </form>
+    </section>
+
+    <section id="step-2" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Circuleren mijn gegevens online?</h1>
+            <p class="hero-text">Deze demonstratie toont welke informatie publiek zichtbaar is op basis van uw e-mailadres.<br>
+Let op: onze experts vinden doorgaans tot 34 keer meer gegevens. Dit betreft slechts een basisanalyse.</p>
+        </header>
+
+        <div style="background: var(--light-gray); padding: 40px; border-radius: 20px; text-align: center;">
+            <input type="text" id="scan-email-display" readonly style="text-align: center; font-weight: bold; margin-bottom:20px; font-size:24px;">
+            <br>
+            <button class="cta-button" id="btn-run-scan">SCAN E-MAILADRES</button>
+            
+            <div id="scan-status" style="margin-top:20px; font-weight:bold; height:30px;"></div>
+            <div id="scan-details" style="display:none; margin-top:30px; text-align:left; max-height: 250px; overflow-y:auto; border:1px solid #ccc; padding:10px; background:white;"></div>
+            <div id="scan-results" class="results-grid"></div>
+        </div>
+    </section>
+
+    <section id="step-3" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Inbox Analyse</h1>
+            <p class="hero-text">Hackers komen vaak binnen via e-mail. Selecteer de <strong>3 verdachte e-mails</strong></p>
+        </header>
+
+        <div class="email-container">
+            <div class="email-sidebar">
+                <div style="padding:15px; font-weight:bold; border-bottom:1px solid #ddd; background:#eee;">Postvak IN (8)</div>
+                <div id="email-list-render"></div>
+            </div>
+            <div class="email-content" id="email-preview-pane">
+                <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#999;">
+                    Selecteer een e-mail om te lezen
+                </div>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+            <div id="phish-feedback" style="font-weight:bold; color:var(--alert-red);"></div>
+            <div style="text-align:right;">
+                <p id="phish-counter" style="margin-bottom:10px; font-weight:bold;">0/3 Geselecteerd</p>
+                <button id="btn-check-phish" class="cta-button">Controleren</button>
+                <button id="btn-next-phish" class="cta-button" style="display:none;" onclick="startTransition(4, '')">Volgende Stap</button>
+            </div>
+        </div>
+    </section>
+<section id="step-stock" class="step-section">
+        <div class="stock-container">
+            <div class="stock-header">
+                <span class="stock-symbol" id="stock-ticker">CMPNY</span>
+                <span class="stock-live-badge">● LIVE TRADING</span>
+            </div>
+            <div class="stock-price-row">
+                <span id="stock-price">€ 142.50</span>
+                <span class="stock-change" id="stock-percent">-0.00%</span>
+            </div>
+            
+            <div class="chart-wrapper">
+                <svg viewBox="0 0 500 200" class="crash-chart">
+                    <polyline points="0,50 50,45 100,60 150,55 200,80 250,90 300,85 350,150 400,180 450,195 500,200" 
+                              fill="none" stroke="red" stroke-width="5" vector-effect="non-scaling-stroke" />
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(255,0,0,0.5);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(255,0,0,0);stop-opacity:0" />
+                    </linearGradient>
+                    <polygon points="0,50 50,45 100,60 150,55 200,80 250,90 300,85 350,150 400,180 450,195 500,200 500,200 0,200" 
+                             fill="url(#grad1)" />
+                </svg>
+            </div>
+            
+            <h1 class="stock-alert">📉 BEURSHANDEL OPGESCHORT</h1>
+            <p style="text-align:center; color:white;">Panic selling gedetecteerd na geruchten datalek.</p>
+        </div>
+    </section>
+
+    <section id="step-news" class="step-section">
+        <div class="news-container">
+            <div class="news-header">🔴 BREAKING NEWS</div>
+            <div class="news-content">
+                <img src="https://maintenanceandcure.com/wp-content/uploads/2023/11/system-hacked-alert-after-cyber-attack-on-computer-network.jpg" class="news-bg-img">
+                <div class="news-overlay">
+                    <div class="news-live-tag">LIVE • BRUSSEL</div>
+                    <h1 class="news-headline">GROOTSCHALIGE HACK BIJ <span id="news-company-name">BEDRIJF</span></h1>
+                    <div class="news-ticker-wrap">
+                        <div class="news-ticker-move">
+                            ::: EXPERTS WAARSCHUWEN VOOR IDENTITEITSFRAUDE ::: AANDEEL STORT IN ELKAAR ::: CEO NOG NIET BEREIKBAAR VOOR COMMENTAAR ::: POLITIE START ONDERZOEK :::
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="step-4" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Crisis beheer</h1>
+            <p class="hero-text">Incident gemeld. Maak de juiste keuzes (voor zover dat kan).</p>
+        </header>
+        <div style="background: var(--light-gray); padding: 40px; border-radius: 20px;">
+            <div id="quiz-wrapper">
+                <h2 id="quiz-question">...</h2>
+                <div id="quiz-options"></div>
+                <div id="quiz-progress" style="margin-top:20px; color:#999; font-size:14px; font-weight:bold;"></div>
+            </div>
+            <div id="quiz-finish-btn" style="display:none; text-align:center; margin-top:30px;">
+                <p>Alle beslissingen werden genomen voor nu.</p>
+                <button class="cta-button" onclick="goToStep('overlay-it-down')">Volgende Stap</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="step-5" class="step-section">
+        <div style="text-align: center;">
+            <h1 style="color: var(--alert-red); font-size: 64px;">🚨 HACK ACTIEF</h1>
+            <p class="hero-text" style="color: var(--alert-red);">Hackers stelen data. Back-up strategie?</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 30px;">
+                <button class="cta-button" style="background:white; color:black; border:2px solid black;" onclick="handleBackup('usb')">🔌 USB Stick</button>
+                <button class="cta-button" style="background:white; color:black; border:2px solid black;" onclick="handleBackup('cloud')">☁️ Cloud Upload</button>
+                <button class="cta-button" style="background:white; color:black; border:2px solid black;" onclick="handleBackup('mail')">📧 Doormailen</button>
+                <button class="cta-button" style="background:white; color:black; border:2px solid black;" onclick="handleBackup('nothing')">🤷 Niets doen</button>
+            </div>
+            <div id="backup-result" style="margin-top: 40px;"></div>
+            <button id="next-backup" class="cta-button" style="display:none;" onclick="goToStep('overlay-network-down')">Ga Verder</button>
+        </div>
+    </section>
+
+    <section id="step-6" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Noodprocedure actief.</h1>
+            <p class="hero-text">Het systeem wordt gegijzeld. De klok tikt.</p>
+        </header>
+        <div style="text-align: center; max-width: 600px; margin: 0 auto; background: var(--light-gray); padding: 40px; border-radius: 20px;">
+            <div id="prep-timer-display" style="font-size: 80px; font-weight: 900; color:var(--alert-red); margin-top:20px; font-family:monospace;">02:00</div>
+            <div class="progress-container"><div id="prep-bar" class="progress-bar" style="width:100%; background:var(--alert-red);"></div></div>
+            <p id="prep-msg" style="margin-top:20px; font-weight:bold; font-size:18px;">Netwerk wordt versleuteld...</p>
+            <button id="btn-end-prep" class="cta-button" style="display:none;" onclick="finishPrep()">VOLGENDE</button>
+        </div>
+    </section>
+
+    <section id="step-7" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Encryptie Tegenhouden.</h1>
+        </header>
+        <div style="background: var(--light-gray); padding: 40px; border-radius: 20px; text-align: center; max-width: 700px; margin: 0 auto;">
+            <p style="margin-bottom:20px; font-size:18px;">Stel een <strong>master key</strong> in (Minimaal 20 tekens).</p>
+            <input type="text" id="pwd-input" placeholder="Typ wachtwoord..." style="text-align: center; width:100%; font-size:24px;">
+            
+            <div id="pwd-feedback-container" class="pwd-feedback-grid" style="display:none;"></div>
+
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <div id="pwd-countdown" style="color: var(--alert-red); font-weight:bold; font-size:20px;"></div>
+            </div>
+            
+            <button id="btn-check-pwd" class="cta-button" style="margin-top: 30px;">ENCRYPTIE STOPPEN</button>
+            <button id="btn-next-pwd" class="cta-button" style="display:none;" onclick="startTransition(8, 'Kamer: Perszaal')">Naar Communicatie</button>
+        </div>
+    </section>
+
+    <section id="step-8" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>Externe Communicatie</h1>
+            <p class="hero-text">De pers belt. Wat is uw statement?</p>
+        </header>
+
+        <div class="comm-grid">
+            <div class="comm-tile" onclick="selectComm('pers')">
+                <span class="comm-icon">📰</span>
+                <h3>Persbericht</h3>
+                <p>Formeel statement naar de media.</p>
+            </div>
+            <div class="comm-tile" onclick="selectComm('video')">
+                <span class="comm-icon">📹</span>
+                <h3>Videoboodschap</h3>
+                <p>Persoonlijke boodschap voor intern gebruik.</p>
+            </div>
+            <div class="comm-tile" onclick="selectComm('speech')">
+                <span class="comm-icon">📣</span>
+                <h3>Toespraak</h3>
+                <p>Live speech voor het personeel.</p>
+            </div>
+        </div>
+
+        <div id="comm-output" class="generated-msg-box">
+            <p id="comm-text-content"></p>
+            <div style="text-align:center; margin-top:20px;">
+                <p style="font-size:12px; color:#999; text-transform:uppercase;">Klik om opname te starten</p>
+                <div class="record-btn" onclick="toggleRecord(this)"></div>
+            </div>
+            <button class="cta-button" style="margin-top:20px; width:100%;" onclick="goToStep(9)">Afronden</button>
+        </div>
+    </section>
+
+    <section id="step-9" class="step-section">
+        <header class="form-header">
+            <div class="color-accent-bar"></div>
+            <h1>🌍 Wereldwijde Cyberdreiging</h1>
+            <p class="hero-text">Resultaten & Realiteit</p>
+        </header>
+        <div class="dashboard-grid">
+       <div class="dash-card">
+    <h2>Snelste aanval</h2>
+    <p class="big-number">27 sec</p>
+    <div class="subtext">Tegen dat een IT'er wakker is, is het kwaad al geschied!</div>
+</div>
+
+<div class="dash-card">
+    <h2>Menselijke fout</h2>
+    <p class="big-number">91%</p>
+    <div class="subtext">Van alle cyberaanvallen start er één met een simpele phishing-e-mail.</div>
+</div>
+
+<div class="dash-card">
+    <h2>Dwell Time</h2>
+    <p class="big-number">21 dagen</p>
+    <div class="subtext">De gemiddelde tijd dat hackers onopgemerkt in uw netwerk zitten voordat ze toeslaan.</div>
+</div>
+
+<div class="dash-card">
+    <h2>Business Impact</h2>
+    <p class="big-number" style="color:var(--alert-red);">60%</p>
+    <div class="subtext">Van de KMO's gaat failliet binnen zes maanden na een zware cyberaanval.</div>
+</div>
+
+<div class="dash-card" style="border: 2px solid var(--success-green);">
+    <h2>ConXioN Defense</h2>
+    <p class="big-number" style="color:var(--success-green);">24/7</p>
+    <div class="subtext">Onze SOC-specialisten monitoren uw omgeving dag en nacht om dit te voorkomen.</div>
+</div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <button class="cta-button" onclick="initLeaderboard()">Ga naar het ConXioN leaderbord</button>
+        </div>
+    </section>
+
+</div>
+<section id="step-leaderboard" class="step-section">
+    <header class="form-header" style="text-align: center;">
+        <div class="color-accent-bar" style="margin: 0 auto 20px auto;"></div>
+        <h1>ConXioN Leaderboard</h1>
+        <p class="hero-text" style="font-size: 16px; color: #666;">
+            Vergelijking voor bedrijven in uw categorie: <strong id="lb-sector-display" style="color:var(--primary-blue)">...</strong>
+        </p>
+    </header>
+
+    <div class="leaderboard-wrapper">
+        <div class="lb-header">
+            <span>#</span>
+            <span>Bedrijf</span>
+            <span style="text-align: right;">Totale Schade</span>
+        </div>
+        <div id="leaderboard-list" class="lb-list">
+            </div>
+    </div> <div class="conxion-help-block">
+        <h3>ConXioN helpt u graag verder</h3>
+        <p>Uw resultaat is een simulatie, maar de dreiging is reëel. Onze experts staan klaar om uw beveiliging naar het hoogste niveau te tillen.</p>
+        <div class="help-actions">
+            <button class="cta-button btn-outline" onclick="location.reload()">Opnieuw Spelen</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    /* --- DATA & STATE --- */
+    let userData = { naam: "", bedrijf: "", email: "", omzet: 0, type: "MKB", schade: 0, timerActive: false };
+
+    /* --- HELPERS --- */
+    function updateInsight(text, isPermanent = false) {
+        const bar = document.getElementById("conxion-insight-card");
+        const txt = document.getElementById("insight-text-content");
+        bar.style.display = "flex";
+        txt.innerHTML = text;
+        if(!isPermanent) {
+            setTimeout(() => { bar.style.display = 'none'; }, 5000); 
+        }
+    }
+
+    function addDamage(amount) {
+        userData.schade += amount;
+        const badge = document.getElementById("hud-money");
+        badge.classList.remove("pulse-dmg");
+        void badge.offsetWidth; 
+        badge.classList.add("pulse-dmg");
+    }
+
+    /* --- TRANSITIONS --- */
+    function startTransition(targetStep, roomName) {
+        document.getElementById('interstitial-title').innerText = roomName;
+        document.getElementById('overlay-interstitial').style.display = 'flex';
+        const bar = document.getElementById('interstitial-bar');
+        bar.style.width = "0%";
+        // Animation
+        setTimeout(() => bar.style.width = "60%", 400);
+        setTimeout(() => bar.style.width = "100%", 1200);
+        setTimeout(() => {
+            document.getElementById('overlay-interstitial').style.display = 'none';
+            goToStep(targetStep);
+        }, 1800);
+    }
+
+    function goToStep(n) {
+        if(n === 'overlay-it-down') { document.getElementById('overlay-it-down').style.display = 'flex'; return; }
+        if(n === 'overlay-network-down') { document.getElementById('overlay-network-down').style.display = 'flex'; return; }
+
+        document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(typeof n === 'string' && n.startsWith('step') ? n : 'step-' + n);
+        if(target) { target.classList.add('active'); window.scrollTo(0,0); }
+
+        if(n===2) initStep2();
+        if(n===3) initStep3();
+        if(n===4) initStep4(); 
+        if(n===6) initStep6(); 
+        if(n===7) initStep7(); 
+        if(n===9) initEnd();  
+    }
+
+    /* --- START --- */
+   document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById("btn-start").onclick = (e) => {
+            e.preventDefault();
+            userData.naam = document.getElementById("naam").value;
+            userData.bedrijf = document.getElementById("bedrijf").value;
+            userData.email = document.getElementById("email").value;
+            
+            const omz = document.querySelector('input[name="omzet"]:checked');
+            userData.omzet = omz ? parseInt(omz.value) : 450000;
+            
+            const typ = document.querySelector('input[name="type"]:checked');
+            userData.type = typ ? typ.value : "MKB";
+
+            userData.schade = userData.omzet * 0.08;
+            goToStep(2);
+        };
+        // AANGEPAST: 50ms (zodat de teller heel snel tikt)
+        setInterval(updateHud, 500); 
+    });
+    /* --- STAP 2: API --- */
+    function initStep2() {
+        document.getElementById("hud-bar").style.display = "flex";
+        userData.timerActive = true;
+        document.getElementById("scan-email-display").value = userData.email;
+        document.getElementById("btn-run-scan").onclick = function() {
+            this.style.display = "none";
+            const det = document.getElementById("scan-details");
+            det.style.display = "block";
+            document.getElementById("scan-status").innerText = "Scannen...";
+            
+            const breaches = ["LinkedIn Dump (2021)", "Adobe Users", "Collection #1", "Phishing Target List", "Malware Logs", "Pastebin Dump"];
+            let i = 0;
+            const int = setInterval(() => {
+                if(i < breaches.length) {
+                    det.innerHTML += `<div class="hack-item">ALERT: ${breaches[i]}</div>`;
+                    det.scrollTop = det.scrollHeight; i++;
+                } else {
+                    clearInterval(int);
+                    finishScan();
+                }
+            }, 500);
+        };
+        function finishScan() {
+            document.getElementById("scan-status").innerHTML = "<span style='color:red; font-size:24px;'>⚠️ 6 LEKKEN GEVONDEN</span>";
+            const res = document.getElementById("scan-results");
+            const btn = document.createElement("button");
+            btn.className = "cta-button"; 
+            btn.innerText = "Verdergaan";
+            btn.onclick = () => startTransition(3, "Kamer: Directie");
+            res.appendChild(btn);
+        }
+    }
+    
+    function closeItOverlay() { document.getElementById('overlay-it-down').style.display = 'none'; goToStep(5); }
+    function startEmergencyTimer() { document.getElementById('overlay-network-down').style.display = 'none'; goToStep(6); }
+
+    /* --- STAP 3: PHISHING --- */
+   /* --- STAP 3: PHISHING GAME (ADVANCED & DYNAMIC) --- */
+    
+    let phishEmails = [];
+    let selectedPhish = [];
+
+    function initStep3() {
+        // 1. Haal de gegevens op die de gebruiker in Stap 1 heeft ingevuld
+        const full = userData.naam || "Collega";
+        const emailAddr = userData.email || "info@bedrijf.be";
+        const companyName = userData.bedrijf || "Het Bedrijf";
+        
+        // Splits de naam
+        const names = full.trim().split(" ");
+        const fName = names[0]; 
+        const lName = names.length > 1 ? names.slice(1).join(" ") : fName;
+
+        // 2. Genereer de e-mails (Mix van veilig en onveilig)
+        phishEmails = [
+            { 
+                id:0, 
+                s: "Voorbereiding Meeting: Kwartaalcijfers Q3", 
+                f: "Lieven Demeester", 
+                email: "lieven.demeester@sioen.com", // VEILIG
+                body: `Dag ${fName},<br><br>Kan jij de presentatie voor de kwartaalcijfers voorbereiden voor de meeting van morgenochtend 10u?<br><br>Ik heb de ruwe data op de server gezet. Graag focus op de operationele marges.<br><br>Met vriendelijke groeten,<br>Lieven Demeester<br>Financial Director`, 
+                isPhish: false, 
+                attach: false 
+            },
+            { 
+                id:1, 
+                s: "ACTIE VEREIST: Authenticatie voor " + emailAddr, 
+                f: "Microsoft 365 Security", 
+                email: "no-reply@microsoft-auth-verify-security.com", // PHISH: lang vaag domein
+                body: `<strong>Geachte ${fName} ${lName},</strong><br><br>Uw wachtwoord voor het account <em>${emailAddr}</em> verloopt over 24 uur.<br>Om blokkering van uw account en verlies van toegang tot Outlook te voorkomen, moet u uw wachtwoord nu vernieuwen.<br><br>Dit is een geautomatiseerd bericht.`, 
+                isPhish: true, 
+                btn: "Wachtwoord Nu Verlengen" 
+            },
+            { 
+                id:2, 
+                s: "Je bestelling #88214 is onderweg!", 
+                f: "Coolblue", 
+                email: "klantenservice@coolblue.be", // VEILIG
+                body: `Hoi ${fName},<br><br>Goed nieuws! Je pakketje is ingepakt en geven we zo mee aan de bezorger. Morgen heb je het in huis.<br>We hebben de factuur voor je administratie bijgevoegd.<br><br>Veel plezier ermee!<br><br>Met vriendelijke groet,<br>Team Coolblue`, 
+                isPhish: false, 
+                attach: "Factuur_88214.pdf" 
+            },
+            { 
+                id:3, 
+                s: "HR Update: Indexering en Loonbrief", 
+                f: "Sioen HR Benefits", 
+                email: "noreply@sioen-benefits-portal.com", // PHISH: ZEER MOEILIJK (Lijkt echt, maar is extern domein)
+                body: `Beste ${fName},<br><br>Er is een correctie doorgevoerd in de indexering van uw salaris voor deze maand. Dit heeft invloed op uw netto uitbetaling.<br><br>In bijlage vindt u de aangepaste loonfiche. Gelieve deze na te kijken. Indien u vragen heeft, kunt u terecht bij uw HR business partner.<br><br>Met vriendelijke groeten,<br>Het HR Team`, 
+                isPhish: true, 
+                attach: "Loonbrief_Correctie_2025.pdf.exe" // Dubbele extensie valstrik
+            },
+            { 
+                id:4, 
+                s: "Nieuwe Policy: Thuiswerkvergoeding", 
+                f: "Human Resources", 
+                email: "hr-support@sioen-lndustries.com", // PHISH: Typosquatting (kleine L ipv i in industries)
+                body: `Beste collega,<br><br>Het management heeft een nieuwe policy goedgekeurd betreffende de onkostenvergoeding voor thuiswerk.<br><br>Gelieve het document in bijlage te lezen en digitaal te ondertekenen voor akkoord via onze portal.<br><br>HR Department`, 
+                isPhish: true, 
+                attach: "Policy_Update_v2.docx" 
+            },
+            { 
+                id:5, 
+                s: "Nieuwsbrief: Trends in de textielsector", 
+                f: "DataNews Redactie", 
+                email: "nieuwsbrief@datanews.be", // VEILIG
+                body: `Beste ${fName},<br><br>In deze editie: hoe Belgische productiebedrijven innoveren met AI en duurzame materialen.<br><br>Lees de volledige analyse op onze website.<br><br>Groeten,<br>De Redactie`, 
+                isPhish: false, 
+                btn: "Lees Artikel"
+            },
+            { 
+                id:6, 
+                s: "Marc heeft 'Budget2025.xlsx' gedeeld", 
+                f: "SharePoint Notification", 
+                email: "no-reply@sharepoint.com", // VEILIG
+                body: `Hallo ${fName},<br><br>Marc Peeters heeft het bestand <strong>'Budget2025_Final_V3.xlsx'</strong> met u gedeeld via OneDrive voor Bedrijven.<br><br>Klik hieronder om het document te openen in de browser.`, 
+                isPhish: false, 
+                btn: "Openen in SharePoint" 
+            },
+            { 
+                id:7, 
+                s: "LAATSTE AANMANING: Dossier 29384", 
+                f: "Intrum Justitia", 
+                email: "incasso@intrum-pay-portal.net", // PHISH: Urgentie + nep domein
+                body: `Geachte heer/mevrouw ${lName},<br><br>Ondanks eerdere herinneringen hebben wij het openstaande bedrag van €450,00 nog niet ontvangen.<br><br>Indien u niet binnen 24 uur betaalt via de onderstaande link, wordt een gerechtsdeurwaarder ingeschakeld. De kosten zullen hierdoor aanzienlijk oplopen.<br><br>Betaal direct om blokkering te voorkomen.`, 
+                isPhish: true, 
+                btn: "Betaal €450 Direct" 
+            }
+        ];
+
+        // Render de lijst
+        const list = document.getElementById("email-list-render");
+        list.innerHTML = "";
+        phishEmails.forEach((em, i) => {
+            list.innerHTML += `
+            <div class="email-item" id="em-row-${i}" onclick="loadEmail(${i})">
+                <div class="email-icon">${em.f.charAt(0)}</div>
+                <div class="email-content">
+                    <div class="em-from">${em.f}</div>
+                    <div class="em-subj">${em.s}</div>
+                </div>
+            </div>`;
+        });
+        
+        // Reset state
+        document.getElementById("btn-check-phish").onclick = checkPhish;
+        document.getElementById("btn-check-phish").style.display = "inline-block";
+        document.getElementById("btn-next-phish").style.display = "none";
+        document.getElementById("phish-feedback").innerText = "";
+        selectedPhish = [];
+        document.getElementById("phish-counter").innerText = "0/3 Geselecteerd";
+        document.getElementById("email-preview-pane").innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#999;">Selecteer een e-mail om te lezen</div>`;
+    }
+
+    function loadEmail(i) {
+        // UI Update
+        document.querySelectorAll('.email-item').forEach(e => e.classList.remove('active'));
+        document.getElementById(`em-row-${i}`).classList.add('active');
+
+        const em = phishEmails[i];
+        const preview = document.getElementById("email-preview-pane");
+        
+        // Bouw de HTML voor extra elementen (Bijlage / Knop)
+        let extras = "";
+        
+        if(em.attach) {
+            // Check bestandsnaam voor icoon
+            let icon = "📄";
+            if(em.attach.includes(".pdf")) icon = "📕";
+            if(em.attach.includes(".xlsx")) icon = "📊";
+            if(em.attach.includes(".exe")) icon = "⚠️"; 
+            
+            extras += `
+            <div class="attachment-box" style="margin-top:20px; padding:15px; background:#f0f4f8; border:1px solid #dcebf7; border-radius:6px; display:flex; align-items:center; gap:10px; cursor:not-allowed;">
+                <span style="font-size:24px;">${icon}</span>
+                <div>
+                    <div style="font-weight:bold; color:#333;">${em.attach}</div>
+                    <div style="font-size:12px; color:#666;">245 KB - Gescand op virussen</div>
+                </div>
+            </div>`;
+        }
+
+        if(em.btn) {
+            extras += `
+            <div style="margin-top:25px;">
+                <a href="#" style="background:var(--primary-blue); color:white; padding:12px 25px; text-decoration:none; border-radius:4px; font-weight:bold; display:inline-block; pointer-events:none;">${em.btn}</a>
+            </div>`;
+        }
+
+        // Render de volledige mail
+        preview.innerHTML = `
+            <div class="msg-header">
+                <div class="msg-subject">${em.s}</div>
+                <div class="msg-meta-row">
+                    <span style="color:#666;">Van:</span>
+                    <div class="sender-pill">
+                        ${em.f}
+                        <div class="real-email">${em.email}</div>
+                    </div>
+                </div>
+                <div class="msg-meta-row" style="margin-top:5px;">
+                    <span style="color:#666;">Aan:</span>
+                    <span>${userData.naam} &lt;${userData.email}&gt;</span>
+                </div>
+            </div>
+            <div class="msg-body" style="font-size:15px; line-height:1.6; color:#222;">
+                ${em.body}
+            </div>
+            ${extras}
+            
+            <div class="phish-controls">
+                <button class="btn-flag" id="btn-flag-${i}" onclick="flagEmail(${i})">
+                    ${selectedPhish.includes(i) ? 'Gemarkeerd' : 'Markeer als Verdacht'}
+                </button>
+            </div>
+        `;
+    }
+
+    function flagEmail(i) {
+        const row = document.getElementById(`em-row-${i}`);
+        const btn = document.getElementById(`btn-flag-${i}`);
+
+        if(selectedPhish.includes(i)) {
+            // Deselect
+            selectedPhish = selectedPhish.filter(x => x!==i);
+            row.classList.remove('flagged');
+            if(btn) {
+                btn.innerText = "Markeer als Verdacht";
+                btn.style.background = "#fff0f0";
+                btn.style.color = "var(--alert-red)";
+            }
+        } else {
+            // Select (max 3)
+            if(selectedPhish.length < 3) {
+                selectedPhish.push(i);
+                row.classList.add('flagged');
+                if(btn) {
+                    btn.innerText = "Gemarkeerd 🚩";
+                    btn.style.background = "var(--alert-red)";
+                    btn.style.color = "white";
+                }
+            } else {
+                alert("Je kunt maximaal 3 e-mails selecteren.");
+            }
+        }
+        document.getElementById("phish-counter").innerText = `${selectedPhish.length}/3 Geselecteerd`;
+    }
+
+    function checkPhish() {
+        let missed = 0;
+        let actualPhishIndices = phishEmails.map((e,i) => e.isPhish ? i : -1).filter(i => i !== -1);
+        
+        // Tel hoeveel echte phishing mails NIET zijn geselecteerd
+        actualPhishIndices.forEach(idx => {
+            if(!selectedPhish.includes(idx)) missed++;
+        });
+
+        // Tel hoeveel veilige mails WEL zijn geselecteerd (False Positives)
+        let falsePositives = selectedPhish.filter(i => !phishEmails[i].isPhish).length;
+
+        const feedback = document.getElementById("phish-feedback");
+
+        if(missed === 0 && falsePositives === 0) {
+            feedback.innerHTML = "<span style='color:var(--success-green)'>Uitstekend! Je hebt alle dreigingen herkend.</span>";
+        } else {
+            let msg = "Opgelet: ";
+            if(missed > 0) msg += `Je hebt ${missed} phishing mails gemist. `;
+            if(falsePositives > 0) msg += `Je hebt ${falsePositives} veilige mails onterecht gemarkeerd.`;
+            
+            feedback.innerHTML = msg;
+            
+            // Strafpunten: Schade omhoog per fout
+            const penalty = (missed + falsePositives) * (userData.omzet * 0.05);
+            addDamage(penalty);
+        }
+
+       document.getElementById("btn-check-phish").style.display = "none";
+        document.getElementById("btn-next-phish").style.display = "none"; 
+        
+        updateInsight("<strong>ConXioN Insight:</strong> Security Awareness Training vermindert het risico op menselijke fouten met 70%.");
+        
+        // START DE VISUELE SEQUENTIE (Na 2 seconden lezen)
+        setTimeout(startDramaSequence, 2000);
+    }
+    function startDramaSequence() {
+        // 1. DATA VOORBEREIDEN
+        const compName = userData.bedrijf || "CONXION";
+        const ticker = compName.toUpperCase();
+        
+        // Stock data invullen
+        document.getElementById("stock-ticker").innerText = ticker;
+        
+        // News data invullen
+        document.getElementById("news-company-name").innerText = compName;
+
+        // 2. NAAR STOCK PAGINA (5 seconden)
+        goToStep('stock');
+        
+        // Animatie van de prijs laten crashen
+        let startPrice = 142.50;
+        let crashInt = setInterval(() => {
+            startPrice -= (Math.random() * 2);
+            if(startPrice < 40) startPrice = 40;
+            document.getElementById("stock-price").innerText = "€ " + startPrice.toFixed(2);
+            let percent = ((142.50 - startPrice) / 142.50) * 100;
+            document.getElementById("stock-percent").innerText = "-" + percent.toFixed(2) + "%";
+        }, 100);
+
+        // 3. NAAR NEWS PAGINA (na 5 sec)
+        setTimeout(() => {
+            clearInterval(crashInt);
+            goToStep('news');
+            
+            // 4. NAAR VOLGENDE STAP (CRISIS) (na nog eens 5 sec)
+            setTimeout(() => {
+                startTransition(4, "Kamer: Crisis Centrum");
+            }, 5000);
+            
+        }, 5000);
+    }
+    function startTransitionToQuiz() {
+        startTransition(4, "Kamer: Crisis Centrum");
+    }
+    /* --- STAP 4: QUIZ --- */
+    const quizData = [
+        {q:"Wat doe je eerst?", o:["Paniek mailen", "Stilhouden & IT", "Pers bellen"], a:1},
+        {q:"Losgeld betalen?", o:["Ja", "Nee, nooit", "Onderhandelen"], a:1},
+        {q:"CEO fraude call?", o:["Uitvoeren", "Terugbellen mobiel", "Mailen"], a:1},
+        {q:"MFA Spam?", o:["Accepteren", "Weigeren & Melden", "Negeren"], a:1},
+        {q:"Wie eerst bellen?", o:["IT Partner", "Politie", "Verzekering"], a:0},
+        {q:"Server kamer?", o:["Stekker eruit", "Isoleren", "Kijken"], a:1},
+        {q:"USB gevonden?", o:["Inpluggen", "IT geven", "Meenemen"], a:1},
+        {q:"Klant communicatie?", o:["Alles zeggen", "Wachten op feiten", "Liegen"], a:1},
+        {q:"Backups?", o:["Overschrijven", "Forensisch", "Niet nodig"], a:1},
+        {q:"Evaluatie?", o:["Leren", "Vergeten", "Ontslaan"], a:0}
+    ];
+    let qIdx = 0;
+    function initStep4() { showQ(); }
+    function showQ() {
+        if(qIdx>=quizData.length) { 
+            document.getElementById("quiz-wrapper").style.display="none"; 
+            document.getElementById("quiz-finish-btn").style.display="block"; 
+            return; 
+        }
+        const q=quizData[qIdx];
+        document.getElementById("quiz-question").innerText=q.q;
+        document.getElementById("quiz-progress").innerText=`Vraag ${qIdx+1}/10`;
+        const div=document.getElementById("quiz-options"); div.innerHTML="";
+        q.o.forEach((opt,i)=>{
+            const b=document.createElement("div"); b.className="quiz-option"; b.innerText=opt;
+            b.onclick=()=>{ if(i!==q.a) addDamage(userData.omzet*0.05); qIdx++; showQ(); };
+            div.appendChild(b);
+        });
+    }
+
+    /* --- STAP 5: BACKUP --- */
+    function handleBackup(t) {
+        let msg="", c=0;
+        if(t==='usb'){msg="USB Stick";c=0.02;}
+        else if(t==='cloud'){msg="Cloud";c=0.02;}
+        else if(t==='mail'){msg="Mail (DATALEK!)";c=0.10;}
+        else if(t==='nothing'){msg="Niets";c=0.15;}
+        addDamage(userData.omzet*c);
+        document.getElementById("backup-result").innerHTML = `<h3>Keuze: ${msg}</h3>`;
+        document.getElementById("next-backup").style.display = "inline-block";
+        updateInsight("<strong>ConXioN Insight:</strong> Managed Backups hadden dit voorkomen.");
+    }
+
+    /* --- STAP 6: PREP --- */
+    let prepInt;
+    function initStep6() {
+        let t=120;
+        const el = document.getElementById("prep-timer-display");
+        const bar = document.getElementById("prep-bar");
+        prepInt = setInterval(()=>{
+            t = t - 2; // SNELLERE TIJD
+            if(t < 0) t = 0;
+            let m=Math.floor(t/60).toString().padStart(2,'0');
+            let s=(t%60).toString().padStart(2,'0');
+            el.innerText=`${m}:${s}`;
+            bar.style.width=((120-t)/120*100)+"%";
+            if(t<=0) { clearInterval(prepInt); document.getElementById("btn-end-prep").style.display="inline-block"; }
+        }, 1000);
+        setTimeout(()=>{document.getElementById("btn-end-prep").style.display="inline-block"; document.getElementById("btn-end-prep").innerText="Overslaan";}, 1000);
+    }
+    function finishPrep() { clearInterval(prepInt); addDamage(userData.omzet*0.05); startTransition(7, ''); }
+
+    /* --- STAP 7: PWD --- */
+    function initStep7() {
+        updateInsight("<strong>Insight:</strong> Een Enterprise Password Vault is essentieel.");
+        let t=60; const el=document.getElementById("pwd-countdown");
+        const int=setInterval(()=>{t--;el.innerText=t+"s";if(t<=0)clearInterval(int);},1000);
+        document.getElementById("btn-check-pwd").onclick = ()=>{
+            clearInterval(int);
+            const p = document.getElementById("pwd-input").value;
+            const container = document.getElementById("pwd-feedback-container");
+            container.style.display="grid"; container.innerHTML="";
+            
+            const len = p.length >= 20;
+            const complex = /[A-Z]/.test(p) && /[0-9]/.test(p);
+            
+            container.innerHTML += `<div class="pwd-card ${len?'good':'bad'}"><span class="pwd-icon">${len?'✅':'❌'}</span>${len?'Lengte OK':'Te Kort (<20)'}</div>`;
+            container.innerHTML += `<div class="pwd-card ${complex?'good':'bad'}"><span class="pwd-icon">${complex?'✅':'❌'}</span>${complex?'Complexiteit OK':'Te Simpel'}</div>`;
+            container.innerHTML += `<div class="pwd-card bad"><span class="pwd-icon">⚠️</span>Gebruik een Vault</div>`;
+            
+            if(!len || !complex) addDamage(userData.omzet*0.05);
+            document.getElementById("btn-check-pwd").style.display="none";
+            document.getElementById("btn-next-pwd").style.display="inline-block";
+        };
+    }
+
+    /* --- STAP 8: COMMUNICATIE --- */
+/* --- STAP 8: COMMUNICATIE (UPDATED) --- */
+    function selectComm(type) {
+        document.getElementById("comm-output").style.display = "block";
+        const txt = document.getElementById("comm-text-content");
+        
+        // Haal data op (veiligheidshalve met fallbacks)
+        const bedrijf = userData.bedrijf || "onze organisatie";
+        const naam = userData.naam || "Directeur";
+
+        if (type === 'pers') {
+            txt.innerText = `OFFICIEEL PERSBERICHT\n\n` +
+                `Geachte leden van de pers, \n\n` +
+                `Mijn naam is ${naam}, en als woordvoerder van ${bedrijf} moet ik u helaas mededelen dat wij het slachtoffer zijn geworden van een grootschalig cyberincident. ` +
+                `Onze IT-security teams hebben ongeautoriseerde toegang tot onze netwerken gedetecteerd, waarbij een aanzienlijk deel van onze data is versleuteld door ransomware.\n\n` +
+                `Wij hebben direct onze noodprocedures geactiveerd en werken nauw samen met externe cybersecurity-experts en de federale politie om de omvang van de aanval in kaart te brengen. ` +
+                `Op dit moment kunnen wij niet uitsluiten dat er klantgegevens zijn ontvreemd. Onze prioriteit ligt nu bij het beveiligen van onze resterende infrastructuur en transparantie naar onze klanten toe.\n\n` +
+                `Wij vragen om uw geduld terwijl wij dit incident onderzoeken. Verdere updates volgen via onze officiële kanalen.`;
+        } 
+        
+        if (type === 'video') {
+            txt.innerText = `INTERNE VIDEOBOODSCHAP (SCRIPT)\n\n` +
+                `"Beste collega's van ${bedrijf}, dit is ${naam}.\n\n` +
+                `Ik neem deze video op om jullie persoonlijk op de hoogte te brengen van de ernstige situatie waarin we ons bevinden. Zoals jullie hebben gemerkt, zijn onze systemen sinds vanochtend niet meer toegankelijk. Dit is geen gewone storing; we zijn getroffen door een gerichte cyberaanval.\n\n` +
+                `Ik wil jullie vragen om kalm te blijven, maar de situatie is kritiek. Log nergens op in, open geen werkgerelateerde bestanden op persoonlijke toestellen en neem geen contact op met klanten over dit incident totdat jullie groen licht krijgen van het crisisteam.\n\n` +
+                `Ik weet dat dit veel onzekerheid met zich meebrengt over lopende projecten en deadlines. We doen er alles aan om ${bedrijf} zo snel mogelijk weer operationeel te krijgen. Houd jullie telefoons in de gaten voor SMS-updates via het noodkanaal. Bedankt voor jullie begrip en veerkracht."`;
+        } 
+        
+        if (type === 'speech') {
+            txt.innerText = `LIVE TOESPRAAK (VLOER)\n\n` +
+                `"Mag ik heel even ieders aandacht? Iedereen, leg het werk neer en luister naar mij. Dit is ${naam}.\n\n` +
+                `We hebben een noodsituatie. Een half uur geleden is bevestigd dat de servers van ${bedrijf} zijn overgenomen door hackers. Alles ligt plat: e-mail, CRM, productie en de administratie.\n\n` +
+                `Luister goed naar mijn instructies: Trek NU alle netwerkkabels uit jullie laptops en sluit ze af. Ga niet proberen in te loggen via de wifi en gebruik geen USB-sticks. ` +
+                `Dit is een aanval van het hoogste niveau. Ga naar huis en wacht op verdere instructies via de teamleiders. Ik herhaal: dit is geen oefening. Sluit alles af en verlaat het pand. We houden jullie op de hoogte."`;
+        }
+    }
+
+    /* --- EINDE --- */
+    function initEnd() {
+        userData.timerActive=false;
+        document.getElementById("conxion-insight-card").style.display="none";
+        document.getElementById("final-cost").innerText = "€"+Math.floor(userData.schade).toLocaleString("nl-NL");
+        document.getElementById("prevention-msg").innerText = `ConXioN had dit kunnen voorkomen voor slechts een fractie van de kost.`;
+    }
+
+    /* --- HUD & LIVE CALCULATIONS --- */
+    /* --- HUD & LIVE CALCULATIONS --- */
+    let tickCounter = 0; // Teller voor de snelle loop
+
+    function updateHud() {
+        if(userData.timerActive){ 
+            tickCounter++; 
+
+            // TIMER LOGICA
+            if (tickCounter % 2 === 0) {
+                let secondsTotal = Math.floor(tickCounter / 2); 
+                let m = Math.floor(secondsTotal / 60).toString().padStart(2,'0'); 
+                let s = (secondsTotal % 60).toString().padStart(2,'0'); 
+                document.getElementById("hud-timer").innerText = m + ":" + s; 
+            }
+
+            // GELD LOGICA (FIX: Geld loopt nu automatisch op)
+            // Baseer de stijging op de omzet. Bijv: Omzet / 50.000 per tick (halve seconde)
+            // Dit simuleert operationeel verlies per seconde.
+            let burnRate = userData.omzet / 50000; 
+            if(burnRate < 1) burnRate = 1; // Altijd minstens 1 euro
+            
+            userData.schade += burnRate;
+        }
+        
+        // Render het bedrag
+        let currentTotal = Math.floor(userData.schade);
+        document.getElementById("hud-money").innerText = "€" + currentTotal.toLocaleString("nl-NL");
+
+        // Update de breakdown tooltip
+        document.getElementById("cost-wages").innerText = "€" + Math.floor(currentTotal * 0.15).toLocaleString();
+        document.getElementById("cost-contracts").innerText = "€" + Math.floor(currentTotal * 0.25).toLocaleString();
+        document.getElementById("cost-physical").innerText = "€" + Math.floor(currentTotal * 0.15).toLocaleString();
+        document.getElementById("cost-recovery").innerText = "€" + Math.floor(currentTotal * 0.20).toLocaleString();
+        document.getElementById("cost-imago").innerText = "€" + Math.floor(currentTotal * 0.25).toLocaleString();
+        document.getElementById("cost-total").innerText = "€" + currentTotal.toLocaleString();
+    }
+    /* --- LEADERBOARD LOGICA --- */
+    function initLeaderboard() {
+        // Eerst navigeren we naar de nieuwe sectie
+        goToStep('leaderboard'); 
+        
+        // Update de ondertitel met de gekozen sector
+        document.getElementById('lb-sector-display').innerText = userData.type;
+
+        // 1. Genereer fictieve bedrijven
+        // We baseren de scores op de omzet van de speler om het realistisch te houden.
+        // Sommige doen het beter (lager percentage schade), anderen slechter.
+        const base = userData.omzet;
+        
+        // Lijst met fictieve namen (random uitkiezen)
+        const names = [
+            "Peeters Logistics", "D&D Construct", "Vertex Solutions", 
+            "Global Textiles", "B-Sure Insurance", "Alpha Health", 
+            "Metaalwerken Jansen", "Future Finance", "Eco-Trans", 
+            "Smart Retail Group", "Immo West", "TechnoFix"
+        ];
+        
+        let boardData = [];
+
+        // We maken 9 fictieve tegenstanders aan
+        for(let i=0; i<9; i++) {
+            // Random schade percentage tussen 1% en 15% van de omzet
+            // (Simulatie: Sommigen hadden back-ups, anderen niet)
+            let randomPct = (Math.random() * 0.14) + 0.01; 
+            let dmg = Math.floor(base * randomPct);
+            
+            // Pak een naam en verwijder uit de lijst zodat we geen dubbele hebben
+            let nameIdx = Math.floor(Math.random() * names.length);
+            let name = names.splice(nameIdx, 1)[0];
+
+            boardData.push({ name: name, damage: dmg, isUser: false });
+        }
+
+        // 2. Voeg de speler toe aan de lijst
+        boardData.push({ 
+            name: userData.bedrijf + " (U)", 
+            damage: Math.floor(userData.schade), 
+            isUser: true 
+        });
+
+        // 3. Sorteren: Laagste schade staat bovenaan (Rank 1)
+        boardData.sort((a, b) => a.damage - b.damage);
+
+        // 4. Renderen naar HTML
+        const listEl = document.getElementById("leaderboard-list");
+        listEl.innerHTML = ""; // Leegmaken
+
+        boardData.forEach((item, index) => {
+            let rank = index + 1;
+            let rowClass = "lb-row";
+            if(item.isUser) rowClass += " is-user";
+
+            // Formatteer bedrag
+            let formattedDmg = "€ " + item.damage.toLocaleString('nl-NL');
+
+            let html = `
+                <div class="${rowClass}">
+                    <div class="lb-rank">${rank}</div>
+                    <div class="lb-name">${item.name}</div>
+                    <div class="lb-cost">${formattedDmg}</div>
+                </div>
+            `;
+            listEl.innerHTML += html;
+        });
+    }
+</script>
+</body>
+</html>
